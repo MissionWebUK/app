@@ -45,6 +45,26 @@ io.on('connection', (socket) => {
 
   });
 
+  socket.on('join', (callback) => {
+
+    var getOptions = { method: 'GET',
+        url: 'http://localhost:3000/trackedsearch',
+        headers:
+         { 'content-type': 'application/json' },
+        json: true };
+
+    request(getOptions, function (error, response, body) {
+
+      if (error) throw new Error(error);
+
+      var items = body.trackedsearchs;
+
+      callback(items);
+
+    });
+
+  });
+
 });
 
 app.post('/search', urlencodedParser, (req, res) => {
@@ -96,8 +116,6 @@ app.patch('/search/:id', (req, res) => {
 
   var searchPosition = req.body.series.searchPosition;
 
-  console.log(searchPosition);
-
   var body = {
 
     series: {
@@ -107,10 +125,6 @@ app.patch('/search/:id', (req, res) => {
     }
 
   }
-
-  // var body = req.body;
-
-  //var child = req.body.series;
 
   if (!ObjectID.isValid(id)) {
 

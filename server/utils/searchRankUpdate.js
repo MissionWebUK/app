@@ -1,313 +1,321 @@
 var async = require("async");
 var request = require("request");
 
+var schedule = require('node-schedule');
+
 var ids =[];
 
-var getOptions = { method: 'GET',
-    url: 'http://localhost:3000/trackedsearch',
-    headers:
-     { 'content-type': 'application/json' },
-    json: true };
+var j = schedule.scheduleJob('0 4 * * *', function(){
 
-request(getOptions, function (error, response, body) {
+  console.log('Scheduled Job Ran!');
 
-  if (error) throw new Error(error);
+  var getOptions = { method: 'GET',
+      url: 'http://localhost:3000/trackedsearch',
+      headers:
+       { 'content-type': 'application/json' },
+      json: true };
 
-  var items = body.trackedsearchs;
+  request(getOptions, function (error, response, body) {
 
-  async.eachSeries(items,
+    if (error) throw new Error(error);
 
-    function(item, callback){
+    var items = body.trackedsearchs;
 
-      console.log(item);
+    async.eachSeries(items,
 
-      ids =[];
+      function(item, callback){
 
-      var dbid = item._id;
+        console.log(item);
 
-      var myid = item.itemId;
+        ids =[];
 
-      var search = item.searchTerm;
+        var dbid = item._id;
 
-      var site = item.site;
+        var myid = item.itemId;
 
-      var url = 'https://api.envato.com/v1/discovery/search/search/item?term='+search+'&site='+site;
+        var search = item.searchTerm;
 
-      requestJSON(url, (json) => {
+        var site = item.site;
 
-        findRank(myid, json, 1, dbid, (i) => {
+        var url = 'https://api.envato.com/v1/discovery/search/search/item?term='+search+'&site='+site;
 
-          if (i === 0) {
+        requestJSON(url, (json) => {
 
-            url = 'https://api.envato.com/v1/discovery/search/search/item?page=2&term='+search+'&site='+site;
+          findRank(myid, json, 1, dbid, (i) => {
 
-            requestJSON(url, (json) => {
+            if (i === 0) {
 
-              findRank(myid, json, 2, dbid, (i) => {
+              url = 'https://api.envato.com/v1/discovery/search/search/item?page=2&term='+search+'&site='+site;
 
-                if (i === 0) {
+              requestJSON(url, (json) => {
 
-                  url = 'https://api.envato.com/v1/discovery/search/search/item?page=3&term='+search+'&site='+site;
+                findRank(myid, json, 2, dbid, (i) => {
 
-                  requestJSON(url, (json) => {
+                  if (i === 0) {
 
-                    findRank(myid, json, 3, dbid, (i) => {
+                    url = 'https://api.envato.com/v1/discovery/search/search/item?page=3&term='+search+'&site='+site;
 
-                      if (i === 0) {
+                    requestJSON(url, (json) => {
 
-                        url = 'https://api.envato.com/v1/discovery/search/search/item?page=4&term='+search+'&site='+site;
+                      findRank(myid, json, 3, dbid, (i) => {
 
-                        requestJSON(url, (json) => {
+                        if (i === 0) {
 
-                          findRank(myid, json, 4, dbid, (i) => {
+                          url = 'https://api.envato.com/v1/discovery/search/search/item?page=4&term='+search+'&site='+site;
 
-                            if (i === 0) {
+                          requestJSON(url, (json) => {
 
-                              url = 'https://api.envato.com/v1/discovery/search/search/item?page=5&term='+search+'&site='+site;
+                            findRank(myid, json, 4, dbid, (i) => {
 
-                              requestJSON(url, (json) => {
+                              if (i === 0) {
 
-                                findRank(myid, json, 5, dbid, (i) => {
+                                url = 'https://api.envato.com/v1/discovery/search/search/item?page=5&term='+search+'&site='+site;
 
-                                  if (i === 0) {
+                                requestJSON(url, (json) => {
 
-                                    url = 'https://api.envato.com/v1/discovery/search/search/item?page=6&term='+search+'&site='+site;
+                                  findRank(myid, json, 5, dbid, (i) => {
 
-                                    requestJSON(url, (json) => {
+                                    if (i === 0) {
 
-                                      findRank(myid, json, 6, dbid, (i) => {
+                                      url = 'https://api.envato.com/v1/discovery/search/search/item?page=6&term='+search+'&site='+site;
 
-                                        if (i === 0) {
+                                      requestJSON(url, (json) => {
 
-                                          url = 'https://api.envato.com/v1/discovery/search/search/item?page=7&term='+search+'&site='+site;
+                                        findRank(myid, json, 6, dbid, (i) => {
 
-                                          requestJSON(url, (json) => {
+                                          if (i === 0) {
 
-                                            findRank(myid, json, 7, dbid, (i) => {
+                                            url = 'https://api.envato.com/v1/discovery/search/search/item?page=7&term='+search+'&site='+site;
 
-                                              if (i === 0) {
+                                            requestJSON(url, (json) => {
 
-                                                url = 'https://api.envato.com/v1/discovery/search/search/item?page=8&term='+search+'&site='+site;
+                                              findRank(myid, json, 7, dbid, (i) => {
 
-                                                requestJSON(url, (json) => {
+                                                if (i === 0) {
 
-                                                  findRank(myid, json, 8, dbid, (i) => {
+                                                  url = 'https://api.envato.com/v1/discovery/search/search/item?page=8&term='+search+'&site='+site;
 
-                                                    if (i === 0) {
+                                                  requestJSON(url, (json) => {
 
-                                                      url = 'https://api.envato.com/v1/discovery/search/search/item?page=9&term='+search+'&site='+site;
+                                                    findRank(myid, json, 8, dbid, (i) => {
 
-                                                      requestJSON(url, (json) => {
+                                                      if (i === 0) {
 
-                                                        findRank(myid, json, 9, dbid, (i) => {
+                                                        url = 'https://api.envato.com/v1/discovery/search/search/item?page=9&term='+search+'&site='+site;
 
-                                                          if (i === 0) {
+                                                        requestJSON(url, (json) => {
 
-                                                            url = 'https://api.envato.com/v1/discovery/search/search/item?page=10&term='+search+'&site='+site;
+                                                          findRank(myid, json, 9, dbid, (i) => {
 
-                                                            requestJSON(url, (json) => {
+                                                            if (i === 0) {
 
-                                                              findRank(myid, json, 10, dbid, (i) => {
+                                                              url = 'https://api.envato.com/v1/discovery/search/search/item?page=10&term='+search+'&site='+site;
 
-                                                                if (i === 0) {
+                                                              requestJSON(url, (json) => {
 
-                                                                  url = 'https://api.envato.com/v1/discovery/search/search/item?page=11&term='+search+'&site='+site;
+                                                                findRank(myid, json, 10, dbid, (i) => {
 
-                                                                  requestJSON(url, (json) => {
+                                                                  if (i === 0) {
 
-                                                                    findRank(myid, json, 11, dbid, (i) => {
+                                                                    url = 'https://api.envato.com/v1/discovery/search/search/item?page=11&term='+search+'&site='+site;
 
-                                                                      if (i === 0) {
+                                                                    requestJSON(url, (json) => {
 
-                                                                        url = 'https://api.envato.com/v1/discovery/search/search/item?page=12&term='+search+'&site='+site;
+                                                                      findRank(myid, json, 11, dbid, (i) => {
 
-                                                                        requestJSON(url, (json) => {
+                                                                        if (i === 0) {
 
-                                                                          findRank(myid, json, 12, dbid, (i) => {
+                                                                          url = 'https://api.envato.com/v1/discovery/search/search/item?page=12&term='+search+'&site='+site;
 
-                                                                            if (i === 0) {
+                                                                          requestJSON(url, (json) => {
 
-                                                                              url = 'https://api.envato.com/v1/discovery/search/search/item?page=13&term='+search+'&site='+site;
+                                                                            findRank(myid, json, 12, dbid, (i) => {
 
-                                                                              requestJSON(url, (json) => {
+                                                                              if (i === 0) {
 
-                                                                                findRank(myid, json, 13, dbid, (i) => {
+                                                                                url = 'https://api.envato.com/v1/discovery/search/search/item?page=13&term='+search+'&site='+site;
 
-                                                                                  if (i === 0) {
+                                                                                requestJSON(url, (json) => {
 
-                                                                                    url = 'https://api.envato.com/v1/discovery/search/search/item?page=14&term='+search+'&site='+site;
+                                                                                  findRank(myid, json, 13, dbid, (i) => {
 
-                                                                                    requestJSON(url, (json) => {
+                                                                                    if (i === 0) {
 
-                                                                                      findRank(myid, json, 14, dbid, (i) => {
+                                                                                      url = 'https://api.envato.com/v1/discovery/search/search/item?page=14&term='+search+'&site='+site;
 
-                                                                                        if (i === 0) {
+                                                                                      requestJSON(url, (json) => {
 
-                                                                                          url = 'https://api.envato.com/v1/discovery/search/search/item?page=15&term='+search+'&site='+site;
+                                                                                        findRank(myid, json, 14, dbid, (i) => {
 
-                                                                                          requestJSON(url, (json) => {
+                                                                                          if (i === 0) {
 
-                                                                                            findRank(myid, json, 15, dbid, (i) => {
+                                                                                            url = 'https://api.envato.com/v1/discovery/search/search/item?page=15&term='+search+'&site='+site;
 
-                                                                                              if (i === 0) {
+                                                                                            requestJSON(url, (json) => {
 
-                                                                                                console.log(dbid, ': outside of top 450 results');
+                                                                                              findRank(myid, json, 15, dbid, (i) => {
 
-                                                                                                callback();
+                                                                                                if (i === 0) {
 
-                                                                                              }
+                                                                                                  console.log(dbid, ': outside of top 450 results');
+
+                                                                                                  callback();
+
+                                                                                                }
+
+                                                                                              });
 
                                                                                             });
 
-                                                                                          });
+                                                                                          } else {
 
-                                                                                        } else {
+                                                                                            callback();
 
-                                                                                          callback();
+                                                                                          }
 
-                                                                                        }
+                                                                                        });
 
                                                                                       });
 
-                                                                                    });
+                                                                                    } else {
 
-                                                                                  } else {
+                                                                                      callback();
 
-                                                                                    callback();
+                                                                                    }
 
-                                                                                  }
+                                                                                  });
 
                                                                                 });
 
-                                                                              });
+                                                                              } else {
 
-                                                                            } else {
+                                                                                callback();
 
-                                                                              callback();
+                                                                              }
 
-                                                                            }
+                                                                            });
 
                                                                           });
 
-                                                                        });
+                                                                        } else {
 
-                                                                      } else {
+                                                                          callback();
 
-                                                                        callback();
+                                                                        }
 
-                                                                      }
+                                                                      });
 
                                                                     });
 
-                                                                  });
+                                                                  } else {
 
-                                                                } else {
+                                                                    callback();
 
-                                                                  callback();
+                                                                  }
 
-                                                                }
+                                                                });
 
                                                               });
 
-                                                            });
+                                                            } else {
 
-                                                          } else {
+                                                              callback();
 
-                                                            callback();
+                                                            }
 
-                                                          }
+                                                          });
 
                                                         });
 
-                                                      });
+                                                      } else {
 
-                                                    } else {
+                                                        callback();
 
-                                                      callback();
+                                                      }
 
-                                                    }
+                                                    });
 
                                                   });
 
-                                                });
+                                                } else {
 
-                                              } else {
+                                                  callback();
 
-                                                callback();
+                                                }
 
-                                              }
+                                              });
 
                                             });
 
-                                          });
+                                          } else {
 
-                                        } else {
+                                            callback();
 
-                                          callback();
+                                          }
 
-                                        }
+                                        });
 
                                       });
 
-                                    });
+                                    } else {
 
-                                  } else {
+                                      callback();
 
-                                    callback();
+                                    }
 
-                                  }
+                                  });
 
                                 });
 
-                              });
+                              } else {
 
-                            } else {
+                                callback();
 
-                              callback();
+                              }
 
-                            }
+                            });
 
                           });
 
-                        });
+                        } else {
 
-                      } else {
+                          callback();
 
-                        callback();
+                        }
 
-                      }
+                      });
 
                     });
 
-                  });
+                  } else {
 
-                } else {
+                    callback();
 
-                  callback();
+                  }
 
-                }
+                });
 
               });
 
-            });
+            } else {
 
-          } else {
+              callback();
 
-            callback();
+            }
 
-          }
+          });
 
         });
 
-      });
+      },
 
-    },
+      function(err){
+        // All tasks are done now
+        console.log('All updates completed');
+      }
+    );
 
-    function(err){
-      // All tasks are done now
-      console.log('All updates completed');
-    }
-  );
+  });
 
 });
 

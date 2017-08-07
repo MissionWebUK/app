@@ -18,6 +18,8 @@ Main Function Loads with the page
 
 */
 
+
+
 $(function(){
 
   $(function() {
@@ -750,20 +752,108 @@ $(function(){
 
   }
 
-  var socket = io();
+});
 
-  var trackButton = jQuery('#track-button');
+var socket = io();
 
-  trackButton.on('click', function () {
+var trackButton = jQuery('#track-button');
 
-      socket.emit('trackSearch', {
+trackButton.on('click', function () {
 
-        itemId: myid,
-        searchTerm: search,
-        site: site,
-        searchPosition: rank
+    socket.emit('trackSearch', {
 
-      })
+      itemId: myid,
+      searchTerm: search,
+      site: site,
+      searchPosition: rank
+
+    })
+
+});
+
+// socket on connect
+
+socket.on('connect', function () {
+
+  socket.emit('join', function (items) {
+
+    google.charts.load('current', {'packages':['corechart']});
+
+    google.charts.setOnLoadCallback(drawChart);
+
+
+
+
+
+
+  function drawChart() {
+
+    var numItems = items.length;
+
+    console.log(numItems);
+
+    var html = '<h2>Charts</h2>';
+
+    for(var f=0; f<=numItems; f++) {
+
+      html = html+
+
+        '<div class="row">'+
+
+          '<div id="trackedSearch'+f+'" style="width:400; height:300">'+
+
+          '</div>'+
+
+        '</div>';
+
+      $('#curve_chart').html(html);
+
+    }
+
+    console.log(html);
+
+    for(var f=0; f<=numItems; f++) {
+
+      var chartbox = 'trackedSearch'+f;
+
+      console.log(chartbox);
+
+      //console.log(items[f].series[0].searchPosition);
+
+      var numSeries = items[f].series.length;
+
+      var searchPosition = [['Day', 'Rank']];
+
+      for(var g=0; g<numSeries; g++){
+
+        var day = g+1;
+
+        var newPosition = items[f].series[g].searchPosition;
+
+        //console.log(items[f]._id, items[f].series[g].searchPosition);
+
+        searchPosition.push([day, newPosition]);
+
+      }
+
+      console.log(searchPosition);
+
+      var data = google.visualization.arrayToDataTable(searchPosition);
+
+      console.log(data);
+
+      var options = {
+        title: 'Search Rank',
+        curveType: 'function'
+      };
+
+      var chart = new google.visualization.LineChart(document.getElementById(chartbox));
+
+      chart.draw(data, options);
+
+    }
+
+  }
 
   });
 
