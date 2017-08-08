@@ -1,11 +1,12 @@
 var async = require("async");
 var request = require("request");
+//var moment = require('moment');
 
 var schedule = require('node-schedule');
 
 var ids =[];
 
-var j = schedule.scheduleJob('0 4 * * *', function(){
+var j = schedule.scheduleJob('0 19 * * *', function(){
 
   console.log('Scheduled Job Ran!');
 
@@ -385,7 +386,8 @@ function findRank(myid, json, page, dbid, callback) {
             searchPosition: rank,
             series: {
 
-              searchPosition: rank
+              searchPosition: rank,
+              //createdDate: moment().valueOf()
 
             }
 

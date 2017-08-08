@@ -18,7 +18,7 @@ Main Function Loads with the page
 
 */
 
-
+var socket = io();
 
 $(function(){
 
@@ -752,22 +752,24 @@ $(function(){
 
   }
 
-});
+  var trackButton = jQuery('#track-button');
 
-var socket = io();
+  trackButton.on('click', function () {
 
-var trackButton = jQuery('#track-button');
+    trackButton.attr('disabled', 'disabled').text('Adding Search...');
 
-trackButton.on('click', function () {
+      socket.emit('trackSearch', {
 
-    socket.emit('trackSearch', {
+        itemId: myid,
+        searchTerm: search,
+        site: site,
+        searchPosition: rank
 
-      itemId: myid,
-      searchTerm: search,
-      site: site,
-      searchPosition: rank
+      })
 
-    })
+    trackButton.removeAttr('disabled').text('Search Tracked');
+
+  });
 
 });
 
@@ -777,83 +779,85 @@ socket.on('connect', function () {
 
   socket.emit('join', function (items) {
 
-    google.charts.load('current', {'packages':['corechart']});
-
-    google.charts.setOnLoadCallback(drawChart);
-
-
-
-
-
-
-  function drawChart() {
-
     var numItems = items.length;
 
-    console.log(numItems);
+    var html = '<h2>Tracked Searches</h2>';
 
-    var html = '<h2>Charts</h2>';
+    for(var f=0; f<numItems; f++) {
 
-    for(var f=0; f<=numItems; f++) {
+      var chartbox = 'chart'+f;
+
+      var id = items[f].itemId;
+
+      var term = items[f].searchTerm;
+
+      var site = items[f].site;
+
+      var startRank = items[f].searchPosition;
 
       html = html+
 
-        '<div class="row">'+
+        '<div class="row tracked-search">'+
 
-          '<div id="trackedSearch'+f+'" style="width:400; height:300">'+
+          '<div class="col-md-4">'+
+
+            '<p>Item ID: '+id+'</p>'+
+
+            '<p>Search Term: '+term+'</p>'+
+
+            '<p>Site: '+site+'</p>'+
+
+            '<h3>Starting Rank: '+startRank+'</h3>'+
 
           '</div>'+
 
-        '</div>';
+          '<div id="'+chartbox+'" class="ct-chart col-md-8">'+
 
-      $('#curve_chart').html(html);
+          '</div>'+
+
+        '</div>'
 
     }
 
-    console.log(html);
+    $('#curve_chart').html(html);
 
-    for(var f=0; f<=numItems; f++) {
+    for(var f=0; f<numItems; f++) {
 
-      var chartbox = 'trackedSearch'+f;
+      var chartbox = '#chart'+f;
 
-      console.log(chartbox);
+      var labels = [];
 
-      //console.log(items[f].series[0].searchPosition);
+      var data = [];
 
       var numSeries = items[f].series.length;
 
-      var searchPosition = [['Day', 'Rank']];
-
       for(var g=0; g<numSeries; g++){
 
-        var day = g+1;
+        var createdDate = items[f].series[g].createdDate;
 
-        var newPosition = items[f].series[g].searchPosition;
+        var date = moment(createdDate).format("Do MMM");
 
-        //console.log(items[f]._id, items[f].series[g].searchPosition);
-
-        searchPosition.push([day, newPosition]);
+        labels.push(date);
+        data.push(items[f].series[g].searchPosition);
 
       }
 
-      console.log(searchPosition);
+      var searchData = {
 
-      var data = google.visualization.arrayToDataTable(searchPosition);
+        labels: labels,
+        series: [data]
 
-      console.log(data);
-
-      var options = {
-        title: 'Search Rank',
-        curveType: 'function'
       };
 
-      var chart = new google.visualization.LineChart(document.getElementById(chartbox));
+      var options = {
+        // width: 300,
+        // height: 100
+        onlyInteger: true
+      };
 
-      chart.draw(data, options);
+      new Chartist.Line(chartbox, searchData, options);
 
     }
-
-  }
 
   });
 

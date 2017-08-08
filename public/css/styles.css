@@ -1,40 +1,39 @@
 #sitechoice {
-  
+
   margin: 10px 0 15px 0;
-  
+
 }
 
 #urldiv {
-  
+
   margin: 10px 0 15px 0;
-  
+
 }
 
 #searchdiv {
-  
+
   margin: 10px 0 15px 0;
-  
+
 }
 
 #iddiv {
-  
+
   margin: 10px 0 15px 0;
-  
+
 }
 
 #apifirstpage {
-  
+
   margin: 10px 0 15px 0;
-  border-top: 1px solid #7E7E7E;
-  
+
 }
 
 #product {
-  
+
   margin: 10px 0 15px 0;
   padding: 10px 0 10px 0;
   border-bottom: 1px solid #7E7E7E;
-  
+
 }
 
 #submitbtn {
@@ -44,22 +43,29 @@
 }
 
 .spfalse p {
-	
+
 	background-color: red;
 	color: white;
-	
+
 }
 
 .sptrue p {
-	
+
 	background-color: green;
 	color: white;
-	
+
 }
 
 #description span {
-	
+
 	background-color: red;
 	color: white;
-	
+
+}
+
+.tracked-search {
+
+  padding: 20px;
+  border-bottom: 1px solid #7E7E7E;
+
 }

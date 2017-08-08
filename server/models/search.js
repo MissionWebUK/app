@@ -7,6 +7,9 @@ var seriesSchema = new Schema({
   searchPosition: {
     type: Number,
     required: true
+  },
+  createdDate: {
+    type: Date
   }
 
 });

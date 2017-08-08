@@ -5,6 +5,7 @@ const http = require('http');
 const socketIO = require('socket.io');
 const request = require('request');
 const _ = require('lodash');
+const moment = require('moment');
 
 const {ObjectID} = require('mongodb');
 const {mongoose} = require('./db/mongoose');
@@ -30,18 +31,47 @@ io.on('connection', (socket) => {
 
   socket.on('trackSearch', (search) => {
 
-    console.log(search.itemId);
-
     var data = {
 
       itemId: search.itemId,
       searchTerm: search.searchTerm,
       site: search.site,
-      searchPosition: search.searchPosition
+      searchPosition: search.searchPosition,
 
     }
 
-    request.post('http://localhost:3000/search').form(data);
+    request.post({url:'http://localhost:3000/search', form: data}, function(err, response, body){
+
+      var resBody = JSON.parse(body);
+
+      var rank = resBody.searchPosition;
+
+      var dbid = resBody._id;
+
+      var patchOptions = { method: 'PATCH',
+          url: 'http://localhost:3000/search/'+dbid,
+          headers:
+           { 'content-type': 'application/json' },
+          body: {
+
+            searchPosition: rank,
+            series: {
+
+              searchPosition: rank,
+              createdDate: moment().valueOf()
+
+            }
+
+          },
+          json: true };
+
+      request(patchOptions, function(error, response, body) {
+
+        if (error) throw new Error(error);
+
+      });
+
+    });
 
   });
 
@@ -69,8 +99,6 @@ io.on('connection', (socket) => {
 
 app.post('/search', urlencodedParser, (req, res) => {
 
-  console.log('Request', req.body);
-
   var search = new Search({
 
     itemId: req.body.itemId,
@@ -82,13 +110,9 @@ app.post('/search', urlencodedParser, (req, res) => {
 
   search.save().then((doc) => {
 
-    console.log('doc saved:', doc);
-
     res.send(doc);
 
   }, (e) => {
-
-    console.log('error', e);
 
     res.status(400).send(e);
 
@@ -120,7 +144,8 @@ app.patch('/search/:id', (req, res) => {
 
     series: {
 
-      searchPosition: searchPosition
+      searchPosition: searchPosition,
+      createdDate: moment().valueOf()
 
     }
 
