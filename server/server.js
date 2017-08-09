@@ -10,6 +10,7 @@ const moment = require('moment');
 const {ObjectID} = require('mongodb');
 const {mongoose} = require('./db/mongoose');
 const {Search} = require('./models/search');
+const {Category} = require('./models/categories');
 
 const app = express();
 const port = 3000;
@@ -36,7 +37,7 @@ io.on('connection', (socket) => {
       itemId: search.itemId,
       searchTerm: search.searchTerm,
       site: search.site,
-      searchPosition: search.searchPosition,
+      searchPosition: search.searchPosition
 
     }
 
@@ -75,7 +76,54 @@ io.on('connection', (socket) => {
 
   });
 
-  socket.on('join', (callback) => {
+  socket.on('trackCat', (category) => {
+
+    var data = {
+
+      itemId: category.itemId,
+      category: category.category,
+      site: category.site,
+      searchPosition: category.searchPosition,
+      sort: category.sort
+
+    }
+
+    request.post({url:'http://localhost:3000/category', form: data}, function(err, response, body){
+
+      var resBody = JSON.parse(body);
+
+      var rank = resBody.searchPosition;
+
+      var dbid = resBody._id;
+
+      var patchOptions = { method: 'PATCH',
+          url: 'http://localhost:3000/category/'+dbid,
+          headers:
+           { 'content-type': 'application/json' },
+          body: {
+
+            searchPosition: rank,
+            series: {
+
+              searchPosition: rank,
+              createdDate: moment().valueOf()
+
+            }
+
+          },
+          json: true };
+
+      request(patchOptions, function(error, response, body) {
+
+        if (error) throw new Error(error);
+
+      });
+
+    });
+
+  });
+
+  socket.on('trackedsearchs', (callback) => {
 
     var getOptions = { method: 'GET',
         url: 'http://localhost:3000/trackedsearch',
@@ -88,6 +136,26 @@ io.on('connection', (socket) => {
       if (error) throw new Error(error);
 
       var items = body.trackedsearchs;
+
+      callback(items);
+
+    });
+
+  });
+
+  socket.on('trackedcats', (callback) => {
+
+    var getOptions = { method: 'GET',
+        url: 'http://localhost:3000/trackedcategories',
+        headers:
+         { 'content-type': 'application/json' },
+        json: true };
+
+    request(getOptions, function (error, response, body) {
+
+      if (error) throw new Error(error);
+
+      var items = body.trackedcategories;
 
       callback(items);
 
@@ -120,11 +188,49 @@ app.post('/search', urlencodedParser, (req, res) => {
 
 });
 
+app.post('/category', urlencodedParser, (req, res) => {
+
+  var category = new Category({
+
+    itemId: req.body.itemId,
+    category: req.body.category,
+    site: req.body.site,
+    searchPosition: req.body.searchPosition,
+    sort: req.body.sort
+
+  })
+
+  category.save().then((doc) => {
+
+    res.send(doc);
+
+  }, (e) => {
+
+    res.status(400).send(e);
+
+  });
+
+});
+
 app.get('/trackedsearch', (req, res) => {
 
   Search.find().then((trackedsearchs) => {
 
     res.send({trackedsearchs});
+
+  }, (e) => {
+
+    res.send(e);
+
+  });
+
+});
+
+app.get('/trackedcategories', (req, res) => {
+
+  Category.find().then((trackedcategories) => {
+
+    res.send({trackedcategories});
 
   }, (e) => {
 
@@ -164,6 +270,51 @@ app.patch('/search/:id', (req, res) => {
   }, {$push:body}, {new: true}).then((search) => {
 
     if(!search) {
+
+      return res.status(404).send();
+
+    }
+
+    res.send({search});
+
+  }).catch((e) => {
+
+    res.status(400).send();
+
+  });
+
+});
+
+app.patch('/category/:id', (req, res) => {
+
+  var id = req.params.id;
+
+  var searchPosition = req.body.series.searchPosition;
+
+  var body = {
+
+    series: {
+
+      searchPosition: searchPosition,
+      createdDate: moment().valueOf()
+
+    }
+
+  }
+
+  if (!ObjectID.isValid(id)) {
+
+    return res.status(404).send();
+
+  }
+
+  Category.findOneAndUpdate({
+
+    _id: id
+
+  }, {$push:body}, {new: true}).then((category) => {
+
+    if(!category) {
 
       return res.status(404).send();
 

@@ -54,34 +54,6 @@ $(function(){
 
   var rank;
 
-  var description;
-
-  var cleandescription;
-
-  var descwords;
-
-  var descchars;
-
-  var wordcounthtml;
-
-  var charcounthtml;
-
-  var u;
-
-  var word;
-
-  var is_spelled_correctly;
-
-  var deschtml;
-
-  var tag;
-
-  var tags;
-
-  var numtags;
-
-  var tagshtml;
-
   var hits;
 
   var pages;
@@ -117,10 +89,6 @@ $(function(){
   var bottomcostdoll;
 
   var bottomcosthtml;
-
-  // Dictionary Object
-
-	var dictionary = new Typo("en_US", false, false, { dictionaryPath: "typo/dictionaries" });
 
   // Submit Button Function
 
@@ -168,7 +136,7 @@ $(function(){
 
     // Determine the id either from the url or from the user (See Function)
 
-    handleID(userid, url);
+    handleId(userid, url);
 
     // Set the Search URL for the product
 
@@ -178,142 +146,7 @@ $(function(){
 
     requestJSON(searchurl, function(json) {
 
-      // Log response to console for debugging
-
-      // console.log(json);
-
-      // Display Site Name
-
-      $('#sitename').html('<h2>'+site+'</h2>');
-
-      /*
-       *
-       * Description Analysis & Spell Check
-       *
-       *
-      */
-
-      // Retrieve Description
-
-			description = json.description;
-
-      cleandescription = clean_up_desc(description);
-
-      console.log(cleandescription);
-
-      // Split Clean Description into Array of Words
-
-      descwords = cleandescription.split(" ");
-
-      // Display Word Count
-
-			wordcounthtml = '<h3>Word Count: '+descwords.length+'</h3>';
-
-      $('#desccount').html(wordcounthtml);
-
-      // Split Clean Description into Array of Characters
-
-      descchars = cleandescription.split("");
-
-      // Display Character Count
-
-			charcounthtml = '<h4>Character Count: '+descchars.length+'</h4>';
-
-			$('#charcount').html(charcounthtml);
-
- 			// Check Spelling of all words in the array
-
-      deschtml = '<h2>Description</h2>';
-
-			for (u=0; u<descwords.length; u++) {
-
-				word = descwords[u];
-
-				// Check that array item is not empty
-
-				if (word){
-
-					// Check word is spelled correctly
-
-					is_spelled_correctly = dictionary.check(word);
-
-					// If it isn't add a span tag
-
-					if(is_spelled_correctly === false) {
-
-						deschtml = deschtml+
-
-											 '<span>'+word+' </span>';
-
-					} else {
-
-						deschtml = deschtml+word+' ';
-
-					}
-
-				}
-
-			}
-
-      // Display description
-
-			$('#description').html(deschtml);
-
-      /*
-			 *
-			 *	Tag Analysis & Spell Check
-			 *
-			*/
-
-      // Retrieve Tags
-
-      tags = json.tags;
-
-      // Determine number of tags
-
-      numtags = tags.length;
-
-      // Add Title to output html
-
-			tagshtml = '<h2>Tag Analysis</h2>';
-
-      var l;
-
-      // Dtermine if tags are spelled correctly and build html
-
-      for(l=0; l<numtags; l++) {
-
-				tag = tags[l];
-
-    		is_spelled_correctly = dictionary.check(tag);
-
-				if(is_spelled_correctly === false) {
-
-					tagshtml = tagshtml+
-
-										 '<div class="spfalse col-sm-1">'+
-
-										 '<p>'+tag+'</p>'+
-
-										 '</div>';
-
-				} else {
-
-					tagshtml = tagshtml+
-
-										 '<div class="sptrue col-sm-1">'+
-
-										 '<p>'+tag+'</p>'+
-
-										 '</div>';
-
-				}
-
-			}
-
-      // Display Tags
-
-			$('#apitags').html(tagshtml);
+      spellCheck(json);
 
     });
 
@@ -324,6 +157,10 @@ $(function(){
      *
      *
     */
+
+    // Display Site Name
+
+    $('#sitename').html('<h2>'+site+'</h2>');
 
     searchurl = 'https://api.envato.com/v1/discovery/search/search/item?term='+search+'&site='+site;
 
@@ -393,6 +230,158 @@ $(function(){
         if (i === 0) {
 
           $('#apirequestprogress').html('<p>Not in the Top 30</p>');
+
+          var firstpagehtml = '<div class="row">'+
+
+                                  '<h2>Some Products On Page 1</h2>'+
+
+                                '</div>';
+
+          for (var z=0; z<5; z++) {
+
+            var title = json.matches[z].name;
+
+            var desc = json.matches[z].description;
+
+					  var thumburl;
+
+					  if (site == 'themeforest.net'){
+
+						  thumburl = json.matches[z].previews.icon_with_landscape_preview.icon_url;
+
+					  } else if (site == 'codecanyon.net' || site === 'videohive.net'){
+
+						  if (json.matches[z].previews.icon_with_landscape_preview === undefined) {
+
+							  thumburl = json.matches[z].previews.icon_with_video_preview.icon_url;
+
+						  } else {
+
+							  thumburl = json.matches[z].previews.icon_with_landscape_preview.icon_url
+
+						  }
+
+					  } else if (site == 'audiojungle.net'){
+
+						  if (json.matches[z].previews.icon_with_landscape_preview === undefined) {
+
+							  thumburl = json.matches[z].previews.icon_with_audio_preview.icon_url;
+
+						  } else {
+
+							  thumburl = json.matches[z].previews.icon_with_landscape_preview.icon_url
+
+						  }
+
+					  } else if (site == 'graphicriver.net'){
+
+						 if (json.matches[z].previews.icon_with_landscape_preview === undefined) {
+
+							 thumburl = json.matches[z].previews.icon_with_square_preview.icon_url;
+
+						 } else {
+
+							 thumburl = json.matches[z].previews.icon_with_landscape_preview.icon_url
+
+						 }
+
+					 } else if (site == 'photodune.net'){
+
+						if (json.matches[z].previews.icon_with_landscape_preview === undefined) {
+
+							thumburl = json.matches[z].previews.icon_with_thumbnail_preview.icon_url;
+
+						} else {
+
+							thumburl = json.matches[z].previews.icon_with_landscape_preview.icon_url
+
+						}
+
+					} else if (site == '3docean.net'){
+
+						if (json.matches[z].previews.icon_with_landscape_preview === undefined) {
+
+							thumburl = json.matches[z].previews.icon_with_square_preview.icon_url;
+
+						} else {
+
+							thumburl = json.matches[z].previews.icon_with_landscape_preview.icon_url
+
+						}
+
+					} else {
+
+						alert("Invalid Site Information - Have you picked the right site?");
+
+					}
+
+          var numsales = json.matches[z].number_of_sales;
+
+          var price = json.matches[z].price_cents / 100;
+
+          var producturl = json.matches[0].url;
+
+          var productrank = z+1;
+
+          firstpagehtml = firstpagehtml+
+
+                              '<div id="product">'+
+
+                                '<div class="row">'+
+
+                                  '<h4>Rank No. '+productrank+'</h4>'+
+
+                                '</div>'+
+
+                                '<div class="row">'+
+
+                                  '<h3>'+title+'</h3>'+
+
+                                '</div>'+
+
+                                '<div class="row">'+
+
+                                  '<div class="col-sm-3 col-xs-12">'+
+
+                                  '<img src="'+thumburl+'" />'+
+
+                                  '</div>'+
+
+                                  '<div class="col-sm-8 col-xs-12">'+
+
+                                  '<p>'+desc+'</p>'+
+
+                                  '</div>'+
+
+                                '</div>'+
+
+                                '<div class="row">'+
+
+                                  '<div class="col-sm-3 col-xs-12">'+
+
+                                    '<p>No. of sales: '+numsales+'</p>'+
+
+                                  '</div>'+
+
+                                  '<div class="col-sm-3 col-xs-12">'+
+
+                                    '<p>Price: $'+price+'</p>'+
+
+                                  '</div>'+
+
+                                  '<div class="col-sm-3 col-xs-12">'+
+
+                                    '<a href="'+producturl+'"><button type="button" class="btn btn-default">Product Page</button></a>'+
+
+                                  '</div>'+
+
+                                '</div>'+
+
+                              '</div>';
+
+          }
+
+          $('#apifirstpage').html(firstpagehtml);
 
           searchurl = 'https://api.envato.com/v1/discovery/search/search/item?page=2&term='+search+'&site='+site;
 
@@ -698,21 +687,21 @@ $(function(){
 
   }
 
-  function handleID(userid, url) {
+  function handleId(userid, url) {
 
     var pathArray;
 
     if (userid === ''){
 
-			// Split the url into an array
+      // Split the url into an array
 
       pathArray = url.split( '/' );
 
-			// Get the ID from the 5th element in the array
+      // Get the ID from the 5th element in the array
 
       myid = pathArray[5];
 
-			// Check for the length of the ID (7 or 8 characters in this case)
+      // Check for the length of the ID (7 or 8 characters in this case)
 
       if (myid.substring(7, 8) == '?' || '') {
 
@@ -732,25 +721,6 @@ $(function(){
 
   }
 
-  function clean_up_desc(str) {
-
-    if ((str===null) || (str==='')) {
-
-      return false;
-
-    } else {
-
-      str = str.toString();
-
-      str = str.replace(/<[^>]*>/g, '');
-
-      str = str.replace(/[^a-zA-Z ]/g, '');
-
-      return str.replace(/\s+/g, ' ');
-
-    }
-
-  }
 
   var trackButton = jQuery('#track-button');
 
@@ -777,87 +747,91 @@ $(function(){
 
 socket.on('connect', function () {
 
-  socket.emit('join', function (items) {
+  $('#ui-id-4').on('click', function(){
 
-    var numItems = items.length;
+    socket.emit('trackedsearchs', function (items) {
 
-    var html = '<h2>Tracked Searches</h2>';
+      var numItems = items.length;
 
-    for(var f=0; f<numItems; f++) {
+      var html = '<h2>Tracked Searches</h2>';
 
-      var chartbox = 'chart'+f;
+      for(var f=0; f<numItems; f++) {
 
-      var id = items[f].itemId;
+        var chartbox = 'chart'+f;
 
-      var term = items[f].searchTerm;
+        var id = items[f].itemId;
 
-      var site = items[f].site;
+        var term = items[f].searchTerm;
 
-      var startRank = items[f].searchPosition;
+        var site = items[f].site;
 
-      html = html+
+        var startRank = items[f].searchPosition;
 
-        '<div class="row tracked-search">'+
+        html = html+
 
-          '<div class="col-md-4">'+
+          '<div class="row tracked-search">'+
 
-            '<p>Item ID: '+id+'</p>'+
+            '<div class="col-md-4">'+
 
-            '<p>Search Term: '+term+'</p>'+
+              '<p>Item ID: '+id+'</p>'+
 
-            '<p>Site: '+site+'</p>'+
+              '<p>Search Term: '+term+'</p>'+
 
-            '<h3>Starting Rank: '+startRank+'</h3>'+
+              '<p>Site: '+site+'</p>'+
 
-          '</div>'+
+              '<h3>Starting Rank: '+startRank+'</h3>'+
 
-          '<div id="'+chartbox+'" class="ct-chart col-md-8">'+
+            '</div>'+
 
-          '</div>'+
+            '<div id="'+chartbox+'" class="ct-chart col-md-8">'+
 
-        '</div>'
+            '</div>'+
 
-    }
-
-    $('#curve_chart').html(html);
-
-    for(var f=0; f<numItems; f++) {
-
-      var chartbox = '#chart'+f;
-
-      var labels = [];
-
-      var data = [];
-
-      var numSeries = items[f].series.length;
-
-      for(var g=0; g<numSeries; g++){
-
-        var createdDate = items[f].series[g].createdDate;
-
-        var date = moment(createdDate).format("Do MMM");
-
-        labels.push(date);
-        data.push(items[f].series[g].searchPosition);
+          '</div>'
 
       }
 
-      var searchData = {
+      $('#tracked-searchs').html(html);
 
-        labels: labels,
-        series: [data]
+      for(var f=0; f<numItems; f++) {
 
-      };
+        var chartbox = '#chart'+f;
 
-      var options = {
-        // width: 300,
-        // height: 100
-        onlyInteger: true
-      };
+        var labels = [];
 
-      new Chartist.Line(chartbox, searchData, options);
+        var data = [];
 
-    }
+        var numSeries = items[f].series.length;
+
+        for(var g=0; g<numSeries; g++){
+
+          var createdDate = items[f].series[g].createdDate;
+
+          var date = moment(createdDate).format("Do MMM");
+
+          labels.push(date);
+          data.push(items[f].series[g].searchPosition);
+
+        }
+
+        var searchData = {
+
+          labels: labels,
+          series: [data]
+
+        };
+
+        var options = {
+          // width: 300,
+          // height: 100
+          onlyInteger: true
+        };
+
+        new Chartist.Line(chartbox, searchData, options);
+
+      }
+
+    });
 
   });
 

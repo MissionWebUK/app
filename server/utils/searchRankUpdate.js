@@ -1,14 +1,14 @@
 var async = require("async");
 var request = require("request");
-//var moment = require('moment');
+var moment = require('moment');
 
 var schedule = require('node-schedule');
 
 var ids =[];
 
-var j = schedule.scheduleJob('0 19 * * *', function(){
+var j = schedule.scheduleJob('0 20 * * *', function(){
 
-  console.log('Scheduled Job Ran!');
+  console.log('Search Scheduled Job Ran!', moment().valueOf());
 
   var getOptions = { method: 'GET',
       url: 'http://localhost:3000/trackedsearch',
@@ -26,7 +26,6 @@ var j = schedule.scheduleJob('0 19 * * *', function(){
 
       function(item, callback){
 
-        console.log(item);
 
         ids =[];
 
@@ -312,7 +311,7 @@ var j = schedule.scheduleJob('0 19 * * *', function(){
 
       function(err){
         // All tasks are done now
-        console.log('All updates completed');
+        console.log('All updates completed', moment().valueOf());
       }
     );
 
@@ -373,8 +372,6 @@ function findRank(myid, json, page, dbid, callback) {
 
       rank = y+1;
 
-      console.log(rank);
-
       i = 1;
 
       var patchOptions = { method: 'PATCH',
@@ -387,14 +384,12 @@ function findRank(myid, json, page, dbid, callback) {
             series: {
 
               searchPosition: rank,
-              //createdDate: moment().valueOf()
+              createdDate: moment().valueOf()
 
             }
 
           },
           json: true };
-
-          console.log(patchOptions);
 
       request(patchOptions, function(error, response, body) {
 
