@@ -1,3 +1,5 @@
+require('./config/config');
+
 const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -6,14 +8,17 @@ const socketIO = require('socket.io');
 const request = require('request');
 const _ = require('lodash');
 const moment = require('moment');
+const schedule = require('node-schedule');
 
 const {ObjectID} = require('mongodb');
 const {mongoose} = require('./db/mongoose');
 const {Search} = require('./models/search');
 const {Category} = require('./models/categories');
+const {searchRankUpdate} = require('./utils/searchRankUpdate');
+const {catRankUpdate} = require('./utils/catRankUpdate');
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 const publicPath = path.join(__dirname, '../public');
 
 var server = http.createServer(app);
@@ -330,8 +335,20 @@ app.patch('/category/:id', (req, res) => {
 
 });
 
+var j = schedule.scheduleJob('0 4 * * *', function(){
+
+  searchRankUpdate();
+
+});
+
+var k = schedule.scheduleJob('0 5 * * *', function(){
+
+  catRankUpdate();
+
+});
+
 server.listen(port, () => {
 
-  console.log('Server started on port 3000');
+  console.log('Server started on port', port);
 
 });

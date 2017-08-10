@@ -2,13 +2,11 @@ var async = require("async");
 var request = require("request");
 var moment = require('moment');
 
-var schedule = require('node-schedule');
-
 var ids =[];
 
-//var j = schedule.scheduleJob('0 20 * * *', function(){
+var catRankUpdate = () => {
 
-  console.log('Category Scheduled Job Ran!', moment().valueOf());
+  //console.log('Category Scheduled Job Ran!', moment().valueOf());
 
   var getOptions = { method: 'GET',
       url: 'http://localhost:3000/trackedcategories',
@@ -342,7 +340,7 @@ var ids =[];
 
                                                                                               if (i === 0) {
 
-                                                                                                console.log(dbid, ': outside of top 450 results');
+                                                                                                //console.log(dbid, ': outside of top 450 results');
 
                                                                                                 callback();
 
@@ -496,14 +494,16 @@ var ids =[];
 
       function(err){
         // All tasks are done now
-        console.log('All updates completed', moment().valueOf());
+        //console.log('All updates completed', moment().valueOf());
       }
 
     );
 
   });
 
-//});
+};
+
+module.exports = {catRankUpdate};
 
 function requestJSON(url, callback) {
 

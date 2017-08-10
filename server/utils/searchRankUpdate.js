@@ -2,13 +2,11 @@ var async = require("async");
 var request = require("request");
 var moment = require('moment');
 
-var schedule = require('node-schedule');
-
 var ids =[];
 
-var j = schedule.scheduleJob('0 20 * * *', function(){
+var searchRankUpdate = () => {
 
-  console.log('Search Scheduled Job Ran!', moment().valueOf());
+  //console.log('Search Scheduled Job Ran!', moment().valueOf());
 
   var getOptions = { method: 'GET',
       url: 'http://localhost:3000/trackedsearch',
@@ -157,7 +155,7 @@ var j = schedule.scheduleJob('0 20 * * *', function(){
 
                                                                                                 if (i === 0) {
 
-                                                                                                  console.log(dbid, ': outside of top 450 results');
+                                                                                                  // console.log(dbid, ': outside of top 450 results');
 
                                                                                                   callback();
 
@@ -311,13 +309,15 @@ var j = schedule.scheduleJob('0 20 * * *', function(){
 
       function(err){
         // All tasks are done now
-        console.log('All updates completed', moment().valueOf());
+        //console.log('All updates completed', moment().valueOf());
       }
     );
 
   });
 
-});
+};
+
+module.exports = {searchRankUpdate};
 
 function requestJSON(url, callback) {
 
